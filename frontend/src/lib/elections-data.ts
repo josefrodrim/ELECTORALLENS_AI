@@ -583,8 +583,16 @@ export const CYCLES_WITH_P2 = ELECTION_CYCLES.filter(
 )
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 2026 P2 vote-transfer scenarios (second round is pending)
+// 2026 P2 vote-transfer scenarios (second round is pending — June 2026)
 // Each tuple: [% to Fujimori, % to Sánchez, % null/blank/abstain]
+//
+// METHODOLOGY NOTE — these are editorial estimates, NOT Goodman regression output.
+// No district-level P2 data exists yet (P2 has not occurred).
+// Rates are calibrated against:
+//   1. Historical Goodman β from 2011/2016/2021 (see vote-flows.ts / vote_transfers_goodman.json)
+//   2. Declared ideology of each party/candidate
+//   3. Known coalition dynamics (López Aliaga right-wing alignment, Olivera left-wing)
+// Once P2 results are published, run compute_vote_transfers.py for 2026 to replace these.
 // ─────────────────────────────────────────────────────────────────────────────
 export interface TransferScenario {
   label: string

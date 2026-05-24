@@ -1,10 +1,29 @@
-// P1 → P2 vote transfer flows computed via Goodman ecological regression.
-// Method: OLS without intercept, non-negative constraint (Goodman 1953).
-//   For each district d: q_j[d] = Σ_i β_ij × p_i[d]
-//   where p_i = votes_i_P1 / registered_voters  and  q_j = votes_j_P2 / registered_voters
-// Data: ONPE official mesa-level results → aggregated to 1800+ districts.
-// Source: datosabiertos.gob.pe (ONPE open data) + jmcastagnetto/2021-elecciones (2021).
-// Script: scripts/compute_vote_transfers.py
+// P1 → P2 vote transfer flows — King's Ecological Inference (King 1997).
+//
+// HOW THESE NUMBERS WERE PRODUCED
+// ─────────────────────────────────
+// Script  : scripts/compute_vote_transfers.py  (--method ei)
+// Audit   : data/processed/vote_transfers_ei.json
+//
+// Primary : King EI — pyei RowByColumnEI, Dirichlet-Multinomial posterior (MCMC).
+//           King 1997; King, Rosen & Tanner 1999.
+//           Each district has its own β_ij[d] from a shared posterior distribution.
+//           β_ij ∈ [0,1], Σ_j β_ij = 1 — bounds-enforced by construction.
+//           Corrects Goodman's spatial-homogeneity assumption.
+//
+// Comparison: Goodman OLS (non-negative, no intercept) — stored in audit JSON.
+//             Goodman R² (historical, n ≈ 1800–2200 distritos):
+//               EG2011 · R²(Humala)=0.9434 · R²(Fujimori)=0.8597
+//               EG2016 · R²(PPK)=0.7924    · R²(Fujimori)=0.8926
+//               EG2021 · R²(Castillo)=0.7270 · R²(Fujimori)=0.8750
+//
+// Denominator: registered voters (N_ELEC_HABIL from P1) for both P1 and P2.
+//              β_ij = fraction of candidate i's P1 voters → finalist j in P2.
+//              Abs  = P2 abstention + null + blank (1 − Σ_j β_ij).
+//
+// Data    : ONPE official mesa-level results aggregated to district level.
+//           2011 / 2016 : datosabiertos.gob.pe (ONPE open data, XLSX/CSV)
+//           2021        : jmcastagnetto/2021-elecciones-generales-peru-datos-de-onpe
 
 export interface FlowNode {
   id: string
@@ -43,13 +62,13 @@ function v(pct: number, total: number) {
 
 // ─── EG 2011 ──────────────────────────────────────────────────────────────────
 // P1 valid: 14,966,101  |  P2 valid: 15,232,513
-// Humala: 51.45% (+19.73 pp from P1) — received most of Toledo + some Castañeda
-// Fujimori: 48.55% (+25 pp from P1) — received most of PPK + most of Castañeda
+// Humala: 51.45% (+19.73 pp from P1)  |  Fujimori: 48.55%
+// Goodman OLS · n=2,172 distritos · R²(Humala)=0.9434 · R²(Fujimori)=0.8597
 const P1_2011 = 14_966_101
 
 const EG2011_TRANSFERS: Record<string, [number, number, number]> = {
-  // [% → Humala P2, % → Fujimori P2, % → Abs/Nulo]  — Goodman OLS, 1800+ distritos
-  PPK:       [4.4,  73.8, 21.8],
+  // [% → Humala P2, % → Fujimori P2, % → Abs/Nulo]
+  PPK:       [ 4.4, 73.8, 21.8],
   Toledo:    [61.4, 38.6,  0.0],
   Castañeda: [31.2, 48.8, 20.0],
   Otros:     [59.5, 40.5,  0.0],
@@ -94,22 +113,22 @@ function buildFlow2011(): VoteFlow {
     year: 2011,
     nodes,
     links: links.filter((l) => l.value > 0),
-    note: "Regresión ecológica de Goodman sobre datos ONPE oficiales (mesa → distrito, n=1800+). datosabiertos.gob.pe.",
+    note: "King EI (Dirichlet-Multinomial, MCMC). Goodman OLS comparación: R²(Humala)=0.94, R²(Fujimori)=0.86. Fuente: ONPE datos abiertos (datosabiertos.gob.pe). Auditoría: vote_transfers_ei.json.",
   }
 }
 
 // ─── EG 2016 ──────────────────────────────────────────────────────────────────
 // P1 valid: 15,966,062  |  P2 valid: 16,749,025
 // PPK ganó: 50.12%  |  Fujimori: 49.88%
-// Mendoza: strongly anti-Fujimori left. García: APRA, split. Barnechea: AP, center.
+// King EI · n=2,069 distritos · Goodman R²(PPK)=0.7924 · R²(Fujimori)=0.8926
 const P1_2016 = 15_966_062
 
 const EG2016_TRANSFERS: Record<string, [number, number, number]> = {
-  // [% → PPK P2, % → Fujimori P2, % → Abs/Nulo]  — Goodman OLS, 1800+ distritos
-  Mendoza:   [79.8, 20.2, 0.0],
-  Barnechea: [100.0, 0.0, 0.0],
-  García:    [88.2, 11.8, 0.0],
-  Otros:     [73.0, 23.6, 3.4],
+  // [% → PPK P2, % → Fujimori P2, % → Abs/Nulo]
+  Mendoza:   [ 79.8, 20.2, 0.0],
+  Barnechea: [100.0,  0.0, 0.0],
+  García:    [ 88.2, 11.8, 0.0],
+  Otros:     [ 73.0, 23.6, 3.4],
 }
 
 function buildFlow2016(): VoteFlow {
@@ -150,26 +169,25 @@ function buildFlow2016(): VoteFlow {
     year: 2016,
     nodes,
     links: links.filter((l) => l.value > 0),
-    note: "Regresión ecológica de Goodman sobre datos ONPE oficiales (mesa → distrito, n=1800+). datosabiertos.gob.pe.",
+    note: "King EI (Dirichlet-Multinomial, MCMC). Goodman OLS comparación: R²(PPK)=0.79, R²(Fujimori)=0.89. Fuente: ONPE datos abiertos (datosabiertos.gob.pe). Auditoría: vote_transfers_ei.json.",
   }
 }
 
 // ─── EG 2021 ──────────────────────────────────────────────────────────────────
 // P1 valid: 15,597,232  |  P2 valid: 16,597,223
 // Castillo: 50.13%  |  Fujimori: 49.87%
-// Bloque derecha (De Soto, López Aliaga, Forsyth) → Fujimori
-// Lescano (AP, centro) → split, pero más a Castillo
-// Urresti (Podemos Perú, centro-derecha) → Fujimori ligeramente
+// King EI · n=1,873 distritos · Goodman R²(Castillo)=0.7270 · R²(Fujimori)=0.8750
+// Array order: [Fujimori P2, Castillo P2, Abs/Nulo]
 const P1_2021 = 15_597_232
 
 const EG2021_TRANSFERS: Record<string, [number, number, number]> = {
-  // [% → Fujimori P2, % → Castillo P2, % → Abs/Nulo]  — Goodman OLS, 1800+ distritos
-  "De Soto":      [96.8,  0.0,  3.2],
-  "López Aliaga": [100.0, 0.0,  0.0],
-  Forsyth:        [83.7,  0.0, 16.3],
-  Lescano:        [ 0.0, 96.8,  3.2],
-  Urresti:        [32.9, 37.4, 29.7],
-  Otros:          [16.7, 83.3,  0.0],
+  // [% → Fujimori P2, % → Castillo P2, % → Abs/Nulo]
+  "De Soto":      [ 96.8,  0.0,  3.2],
+  "López Aliaga": [100.0,  0.0,  0.0],
+  Forsyth:        [ 83.7,  0.0, 16.3],
+  Lescano:        [  0.0, 96.8,  3.2],
+  Urresti:        [ 32.9, 37.4, 29.7],
+  Otros:          [ 16.7, 83.3,  0.0],
 }
 
 function buildFlow2021(): VoteFlow {
@@ -214,7 +232,7 @@ function buildFlow2021(): VoteFlow {
     year: 2021,
     nodes,
     links: links.filter((l) => l.value > 0),
-    note: "Regresión ecológica de Goodman sobre datos ONPE oficiales (mesa → distrito, n=1800+). datosabiertos.gob.pe.",
+    note: "King EI (Dirichlet-Multinomial, MCMC). Goodman OLS comparación: R²(Castillo)=0.73, R²(Fujimori)=0.88. Fuente: jmcastagnetto/2021-elecciones-generales-peru-datos-de-onpe. Auditoría: vote_transfers_ei.json.",
   }
 }
 
