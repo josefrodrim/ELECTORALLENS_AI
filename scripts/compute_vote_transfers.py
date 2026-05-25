@@ -280,9 +280,10 @@ def compute_goodman_2021(
 # ── King EI: array builders ────────────────────────────────────────────────
 
 def _normalize_rows(arr: np.ndarray) -> np.ndarray:
-    totals = arr.sum(axis=1, keepdims=True)
+    clipped = np.clip(arr, 0.0, None)
+    totals = clipped.sum(axis=1, keepdims=True)
     totals = np.where(totals == 0, 1.0, totals)
-    return np.clip(arr, 0.0, None) / totals
+    return clipped / totals
 
 
 def build_ei_arrays(
@@ -403,8 +404,8 @@ def king_ei_fit(
 
     ei = RowByColumnEI(model_name="multinomial-dirichlet")
     ei.fit(
-        group_fracs,
-        vote_fracs,
+        group_fracs.T,   # pyei expects (r_groups, p_precincts)
+        vote_fracs.T,    # pyei expects (c_outcomes, p_precincts)
         precinct_pops,
         demographic_group_names=group_names,
         candidate_names=outcome_names,

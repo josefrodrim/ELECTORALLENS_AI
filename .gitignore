@@ -34,5 +34,11 @@ data/processed/
 .idea/
 *.swp
 
+# Claude Code
+CLAUDE.md
+frontend/CLAUDE.md
+frontend/AGENTS.md
+
 # Docker
 *.log
+.vercel
