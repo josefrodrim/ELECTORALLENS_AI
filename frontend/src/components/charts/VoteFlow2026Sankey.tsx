@@ -39,12 +39,12 @@ function fmtM(v: number) {
 
 function makePhotoLayer(photoMap: Record<string, string>): SankeyCustomLayer<NodeExtra, Link2026> {
   return ({ nodes }) => {
-    const R = 17
+    const R = 14
     return (
       <g>
         <defs>
           {nodes.map((node) => {
-            if (!photoMap[node.id] || node.height < R * 2) return null
+            if (!photoMap[node.id] || node.height < R) return null
             const sid = `clipsan26_${node.id.replace(/[^a-zA-Z0-9]/g, "_")}`
             return (
               <clipPath key={sid} id={sid}>
@@ -55,7 +55,7 @@ function makePhotoLayer(photoMap: Record<string, string>): SankeyCustomLayer<Nod
         </defs>
         {nodes.map((node) => {
           const photo = photoMap[node.id]
-          if (!photo || node.height < R * 2) return null
+          if (!photo || node.height < R) return null
           const sid = `clipsan26_${node.id.replace(/[^a-zA-Z0-9]/g, "_")}`
           return (
             <image
@@ -76,22 +76,51 @@ function makePhotoLayer(photoMap: Record<string, string>): SankeyCustomLayer<Nod
 
 function buildData(scenarioIndex: number) {
   const scenario = TRANSFER_SCENARIOS[scenarioIndex]
+  const projection = computeProjection(scenario)
+  const fujimoriWins = projection.keiko_pct >= projection.sanchez_pct
+
   const p1 = CYCLES_BY_YEAR[2026].p1
+  const finalists = p1.candidates.filter((c) => c.is_finalist)
   const eliminated = p1.candidates.filter((c) => !c.is_finalist)
 
-  const leftNodes: NodeExtra[] = eliminated.map((c) => ({
+  // Finalists on the left: winner P1 always on top
+  const finalistLeftNodes: NodeExtra[] = [...finalists]
+    .sort((a, _b) => fujimoriWins
+      ? (a.short_name === "Fujimori" ? -1 : 1)
+      : (a.short_name === "Sánchez"  ? -1 : 1))
+    .map((c) => ({
+      id: `${c.short_name}_p1`,
+      nodeColor: c.short_name === "Fujimori" ? "#f97316" : "#22d3ee",
+      label: `${c.short_name} P1  ${c.vote_pct.toFixed(1)}%`,
+    }))
+
+  const eliminatedNodes: NodeExtra[] = eliminated.map((c) => ({
     id: c.short_name,
     nodeColor: IDEOLOGY_COLORS[c.ideology ?? "center"] ?? "#64748b",
     label: `${c.short_name}  ${c.vote_pct.toFixed(1)}%`,
   }))
 
-  const rightNodes: NodeExtra[] = [
-    { id: "Fujimori", nodeColor: "#f97316", label: "Fujimori P2" },
-    { id: "Sánchez", nodeColor: "#22d3ee", label: "Sánchez P2" },
-    { id: "Abstención", nodeColor: "#52525b", label: "Abstención" },
-  ]
+  // Right nodes: winner on top
+  const rightNodes: NodeExtra[] = fujimoriWins
+    ? [
+        { id: "Fujimori",  nodeColor: "#f97316", label: "Fujimori P2" },
+        { id: "Sánchez",   nodeColor: "#22d3ee", label: "Sánchez P2"  },
+        { id: "Abstención", nodeColor: "#52525b", label: "Abstención"  },
+      ]
+    : [
+        { id: "Sánchez",   nodeColor: "#22d3ee", label: "Sánchez P2"  },
+        { id: "Fujimori",  nodeColor: "#f97316", label: "Fujimori P2" },
+        { id: "Abstención", nodeColor: "#52525b", label: "Abstención"  },
+      ]
 
   const links: Link2026[] = []
+
+  // Finalist own votes flow 100% to themselves (matches computeProjection assumption)
+  for (const c of finalists) {
+    links.push({ source: `${c.short_name}_p1`, target: c.short_name, value: c.votes })
+  }
+
+  // Eliminated candidates transfer per scenario
   for (const c of eliminated) {
     const transfer = scenario.transfers[c.short_name] ?? [30, 50, 20]
     const v = c.votes
@@ -100,7 +129,7 @@ function buildData(scenarioIndex: number) {
     if (transfer[2] > 0) links.push({ source: c.short_name, target: "Abstención", value: Math.round((v * transfer[2]) / 100) })
   }
 
-  return { nodes: [...leftNodes, ...rightNodes], links }
+  return { nodes: [...finalistLeftNodes, ...eliminatedNodes, ...rightNodes], links }
 }
 
 export default function VoteFlow2026Sankey() {
@@ -113,10 +142,11 @@ export default function VoteFlow2026Sankey() {
   const labelById = Object.fromEntries(nodes.map((n) => [n.id, n.label]))
   const colorById = Object.fromEntries(nodes.map((n) => [n.id, n.nodeColor]))
 
-  // photo map: node IDs are already short names ("Fujimori", "López Aliaga", etc.)
+  // photo map: strip "_p1" suffix to find the photo for finalist source nodes
   const photoMap: Record<string, string> = {}
   for (const n of nodes) {
-    const photo = CANDIDATE_PHOTOS[n.id]
+    const baseId = n.id.replace(/_p1$/, "")
+    const photo = CANDIDATE_PHOTOS[n.id] ?? CANDIDATE_PHOTOS[baseId]
     if (photo) photoMap[n.id] = photo
   }
   const photoLayer = makePhotoLayer(photoMap)
@@ -145,11 +175,11 @@ export default function VoteFlow2026Sankey() {
         <p className="text-slate-500 text-xs max-w-lg">{scenario.description}</p>
         <div className="flex gap-6 text-sm font-mono">
           <span>
-            <span className="text-orange-600 font-bold">{projection.keiko_pct.toFixed(2)}%</span>
+            <span className="text-orange-600 font-bold">~{Math.round(projection.keiko_pct)}%</span>
             <span className="text-slate-400 text-xs ml-1">Fujimori</span>
           </span>
           <span>
-            <span className="text-cyan-600 font-bold">{projection.sanchez_pct.toFixed(2)}%</span>
+            <span className="text-cyan-600 font-bold">~{Math.round(projection.sanchez_pct)}%</span>
             <span className="text-slate-400 text-xs ml-1">Sánchez</span>
           </span>
           <span className={`text-xs font-semibold px-2 py-0.5 rounded border ${
@@ -157,7 +187,7 @@ export default function VoteFlow2026Sankey() {
               ? "bg-orange-50 border-orange-200 text-orange-700"
               : "bg-cyan-50 border-cyan-200 text-cyan-700"
           }`}>
-            {projection.keiko_pct > 50 ? "Fujimori ganaría" : "Sánchez ganaría"}
+            {projection.keiko_pct > 50 ? "Fujimori adelante" : "Sánchez adelante"}
           </span>
         </div>
       </div>
@@ -256,9 +286,9 @@ export default function VoteFlow2026Sankey() {
         />
       </div>
 
-      <p className="text-xs text-zinc-600">
-        * Flujos estimados basados en alineación ideológica y patrones históricos de transferencia.
-        El voto es secreto; estos valores son aproximaciones estadísticas.
+      <p className="text-xs text-slate-400 leading-relaxed">
+        Proyecciones calibradas con patrones históricos de transferencia electoral (EG 2011, 2016, 2021) — Referencia: Inferencia Ecológica (King 1997) · ONPE.
+        El voto es secreto; estos flujos son aproximaciones estadísticas, no predicciones.
       </p>
     </div>
   )

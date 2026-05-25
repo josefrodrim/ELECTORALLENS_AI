@@ -1,5 +1,5 @@
 // Maps Candidate.short_name → local photo path under /public/candidates/
-// Source: Wikimedia Commons (CC-BY / CC-BY-SA). No photos for Álvarez or López Chau.
+// Source: Wikimedia Commons (CC-BY / CC-BY-SA). No photos for Espa or Olivera.
 export const CANDIDATE_PHOTOS: Record<string, string> = {
   // 2011
   "Humala":     "/candidates/humala.jpg",
@@ -22,4 +22,11 @@ export const CANDIDATE_PHOTOS: Record<string, string> = {
   "Sánchez":    "/candidates/sanchez.jpg",
   "Nieto":      "/candidates/nieto.jpg",
   "Belmont":    "/candidates/belmont.jpg",
+  "Álvarez":    "/candidates/alvarez.jpg",
+  "López Chau": "/candidates/lopez-chau.jpg",
+  "Pérez Tello":"/candidates/perez-tello.jpg",
+  "Luna":       "/candidates/luna.jpg",
+  "Acuña":      "/candidates/acuna.jpg",
+  "Olivera":    "/candidates/olivera.jpg",
+  "Espa":       "/candidates/espa.jpg",
 }

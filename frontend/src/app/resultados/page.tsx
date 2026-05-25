@@ -1,13 +1,23 @@
 import { api } from "@/lib/api"
-import type { ResultItem } from "@/lib/types"
+import type { ResultItem, ResultList } from "@/lib/types"
 import ResultsDrillDown from "@/components/ResultsDrillDown"
+import { getStaticDeptResults } from "@/lib/static-election-results"
 
 export const revalidate = 60
 
-export default async function ResultadosPage() {
+export default async function ResultadosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ election?: string }>
+}) {
+  const { election = "GP2021-P2" } = await searchParams
+
+  const staticData = getStaticDeptResults(election)
   const [deptResults, provinceResults] = await Promise.all([
-    api.results("department", "GP2021-P2"),
-    api.results("province", "GP2021-P2").catch(() => ({ items: [] as ResultItem[] })),
+    staticData
+      ? Promise.resolve(staticData)
+      : api.results("department", election),
+    api.results("province", election).catch(() => ({ items: [] as ResultItem[] })) as Promise<ResultList | { items: ResultItem[] }>,
   ])
 
   return (
@@ -15,7 +25,7 @@ export default async function ResultadosPage() {
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Resultados por Territorio</h1>
         <p className="text-slate-500 text-sm mt-1">
-          Segunda vuelta GP2021 · Selecciona un departamento para ver el desglose provincial
+          {deptResults.election_name} · Selecciona un departamento para ver el desglose provincial
         </p>
       </div>
       <ResultsDrillDown

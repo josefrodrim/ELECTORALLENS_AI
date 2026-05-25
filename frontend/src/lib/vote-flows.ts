@@ -63,15 +63,15 @@ function v(pct: number, total: number) {
 // ─── EG 2011 ──────────────────────────────────────────────────────────────────
 // P1 valid: 14,966,101  |  P2 valid: 15,232,513
 // Humala: 51.45% (+19.73 pp from P1)  |  Fujimori: 48.55%
-// Goodman OLS · n=2,172 distritos · R²(Humala)=0.9434 · R²(Fujimori)=0.8597
+// King EI · n=2,172 distritos · Goodman R²(Humala)=0.9434 · R²(Fujimori)=0.8597
 const P1_2011 = 14_966_101
 
 const EG2011_TRANSFERS: Record<string, [number, number, number]> = {
-  // [% → Humala P2, % → Fujimori P2, % → Abs/Nulo]
-  PPK:       [ 4.4, 73.8, 21.8],
-  Toledo:    [61.4, 38.6,  0.0],
-  Castañeda: [31.2, 48.8, 20.0],
-  Otros:     [59.5, 40.5,  0.0],
+  // [% → Humala P2, % → Fujimori P2, % → Abs/Nulo]  // ±1 SD (EI posterior)
+  PPK:       [10.5, 75.7, 13.7],  // ±[1.5, 1.5, 1.1]
+  Toledo:    [63.4, 33.4,  3.1],  // ±[1.5, 1.4, 0.5]
+  Castañeda: [35.1, 60.9,  4.0],  // ±[2.3, 2.6, 0.6]
+  Otros:     [89.1,  5.6,  5.3],  // ±[1.1, 0.7, 0.7]
 }
 
 function buildFlow2011(): VoteFlow {
@@ -113,7 +113,7 @@ function buildFlow2011(): VoteFlow {
     year: 2011,
     nodes,
     links: links.filter((l) => l.value > 0),
-    note: "King EI (Dirichlet-Multinomial, MCMC). Goodman OLS comparación: R²(Humala)=0.94, R²(Fujimori)=0.86. Fuente: ONPE datos abiertos (datosabiertos.gob.pe). Auditoría: vote_transfers_ei.json.",
+    note: "Estimación sobre 2,172 distritos · Fuente: ONPE datos abiertos · Los flujos son aproximaciones estadísticas; el voto individual es secreto.",
   }
 }
 
@@ -124,11 +124,11 @@ function buildFlow2011(): VoteFlow {
 const P1_2016 = 15_966_062
 
 const EG2016_TRANSFERS: Record<string, [number, number, number]> = {
-  // [% → PPK P2, % → Fujimori P2, % → Abs/Nulo]
-  Mendoza:   [ 79.8, 20.2, 0.0],
-  Barnechea: [100.0,  0.0, 0.0],
-  García:    [ 88.2, 11.8, 0.0],
-  Otros:     [ 73.0, 23.6, 3.4],
+  // [% → PPK P2, % → Fujimori P2, % → Abs/Nulo]  // ±1 SD (EI posterior)
+  Mendoza:   [81.3, 15.1,  3.6],  // ±[1.1, 1.5, 0.8]
+  Barnechea: [94.2,  3.2,  2.5],  // ±[1.3, 1.0, 0.5]
+  García:    [63.9, 34.1,  2.0],  // ±[2.3, 2.2, 0.3]
+  Otros:     [66.8, 17.3, 15.9],  // ±[1.3, 1.4, 1.3]
 }
 
 function buildFlow2016(): VoteFlow {
@@ -169,7 +169,7 @@ function buildFlow2016(): VoteFlow {
     year: 2016,
     nodes,
     links: links.filter((l) => l.value > 0),
-    note: "King EI (Dirichlet-Multinomial, MCMC). Goodman OLS comparación: R²(PPK)=0.79, R²(Fujimori)=0.89. Fuente: ONPE datos abiertos (datosabiertos.gob.pe). Auditoría: vote_transfers_ei.json.",
+    note: "Estimación sobre 2,069 distritos · Fuente: ONPE datos abiertos · Los flujos son aproximaciones estadísticas; el voto individual es secreto.",
   }
 }
 
@@ -181,13 +181,13 @@ function buildFlow2016(): VoteFlow {
 const P1_2021 = 15_597_232
 
 const EG2021_TRANSFERS: Record<string, [number, number, number]> = {
-  // [% → Fujimori P2, % → Castillo P2, % → Abs/Nulo]
-  "De Soto":      [ 96.8,  0.0,  3.2],
-  "López Aliaga": [100.0,  0.0,  0.0],
-  Forsyth:        [ 83.7,  0.0, 16.3],
-  Lescano:        [  0.0, 96.8,  3.2],
-  Urresti:        [ 32.9, 37.4, 29.7],
-  Otros:          [ 16.7, 83.3,  0.0],
+  // [% → Fujimori P2, % → Castillo P2, % → Abs/Nulo]  // ±1 SD (EI posterior)
+  "De Soto":      [63.9, 18.1, 18.1],  // ±[3.8, 2.8, 3.0]
+  "López Aliaga": [69.7, 16.6, 13.7],  // ±[4.3, 2.7, 3.2]
+  Forsyth:        [46.8, 18.7, 34.5],  // ±[7.1, 2.9, 7.9]
+  Lescano:        [25.6, 52.7, 21.8],  // ±[2.3, 4.3, 4.0]
+  Urresti:        [44.8, 25.0, 30.2],  // ±[4.1, 3.8, 4.4]
+  Otros:          [57.6, 33.5,  8.9],  // ±[2.3, 2.4, 2.3]
 }
 
 function buildFlow2021(): VoteFlow {
@@ -232,7 +232,7 @@ function buildFlow2021(): VoteFlow {
     year: 2021,
     nodes,
     links: links.filter((l) => l.value > 0),
-    note: "King EI (Dirichlet-Multinomial, MCMC). Goodman OLS comparación: R²(Castillo)=0.73, R²(Fujimori)=0.88. Fuente: jmcastagnetto/2021-elecciones-generales-peru-datos-de-onpe. Auditoría: vote_transfers_ei.json.",
+    note: "Estimación sobre 1,873 distritos · Fuente: ONPE datos abiertos · Los flujos son aproximaciones estadísticas; el voto individual es secreto.",
   }
 }
 

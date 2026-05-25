@@ -1,8 +1,10 @@
-import { api } from "@/lib/api"
 import { CYCLES_BY_YEAR } from "@/lib/elections-data"
+import { EG2021_P2_DEPT_RESULTS } from "@/lib/elections-2021-p2-static"
 import ElectionCyclePage from "@/components/election/ElectionCyclePage"
 import { PeruMapP2Client } from "@/components/charts/ChartsSection"
 import type { P2CandidateConfig } from "@/components/charts/PeruMapP2"
+import { Separator } from "@/components/ui/separator"
+import Link from "next/link"
 
 const P2_CANDIDATES: [P2CandidateConfig, P2CandidateConfig] = [
   { code: "F1", name: "Pedro Castillo Terrones", short: "Castillo", party: "Perú Libre",
@@ -10,38 +12,32 @@ const P2_CANDIDATES: [P2CandidateConfig, P2CandidateConfig] = [
   { code: "F2", name: "Keiko Fujimori Higuchi", short: "Fujimori", party: "Fuerza Popular",
     photo: "/candidates/fujimori.jpg", color: "#ea580c", dimColor: "#fff7ed" },
 ]
-import { Separator } from "@/components/ui/separator"
-import Link from "next/link"
 
-export default async function Page2021() {
-  const p2Data = await api.results("department", "GP2021-P2").catch(() => null)
-
+export default function Page2021() {
   return (
     <div className="space-y-12">
       <ElectionCyclePage cycle={CYCLES_BY_YEAR[2021]} />
 
       {/* ── Interactive department map ─────────────────────────────────────── */}
-      {p2Data && (
-        <>
-          <Separator className="border-slate-200" />
-          <div>
-            <h2 className="text-lg font-bold text-slate-900 mb-1">
-              Mapa de resultados — Segunda Vuelta EG 2021
-            </h2>
-            <p className="text-slate-500 text-sm mb-5">
-              Resultado por departamento · Pasa el cursor sobre la foto del candidato para
-              resaltar los departamentos donde ganó
-            </p>
+      <>
+        <Separator className="border-slate-200" />
+        <div>
+          <h2 className="text-lg font-bold text-slate-900 mb-1">
+            Mapa de resultados — Segunda Vuelta EG 2021
+          </h2>
+          <p className="text-slate-500 text-sm mb-5">
+            Resultado por departamento · Pasa el cursor sobre la foto del candidato para
+            resaltar los departamentos donde ganó
+          </p>
 
-            <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-5">
-              <PeruMapP2Client items={p2Data.items} candidates={P2_CANDIDATES} />
-              <p className="text-xs text-slate-400 mt-4">
-                Fuente: ONPE · Resultados finales Segunda Vuelta EG 2021 por departamento.
-              </p>
-            </div>
+          <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-5">
+            <PeruMapP2Client items={EG2021_P2_DEPT_RESULTS} candidates={P2_CANDIDATES} />
+            <p className="text-xs text-slate-400 mt-4">
+              Fuente: ONPE · Resultados finales Segunda Vuelta EG 2021 · Datos a nivel de mesa agregados por departamento (86 488 actas domésticas).
+            </p>
           </div>
-        </>
-      )}
+        </div>
+      </>
 
       {/* ── Links to territorial analysis ─────────────────────────────────── */}
       <Separator className="border-slate-200" />
@@ -51,7 +47,7 @@ export default async function Page2021() {
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Link
-            href="/resultados"
+            href="/resultados?election=GP2021-P2"
             className="group rounded-xl border border-slate-200 bg-white shadow-sm p-5 hover:border-slate-300 hover:shadow-md transition-all space-y-2"
           >
             <div className="flex items-center gap-2">
@@ -67,7 +63,7 @@ export default async function Page2021() {
           </Link>
 
           <Link
-            href="/participacion"
+            href="/participacion?election=GP2021-P2"
             className="group rounded-xl border border-slate-200 bg-white shadow-sm p-5 hover:border-slate-300 hover:shadow-md transition-all space-y-2"
           >
             <div className="flex items-center gap-2">

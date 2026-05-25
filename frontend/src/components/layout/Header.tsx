@@ -10,7 +10,7 @@ const NAV = [
   { href: "/2016", label: "EG 2016" },
   { href: "/2021", label: "EG 2021" },
   { href: "/2026", label: "EG 2026" },
-  { href: "/keiko", label: "Patrón Keiko" },
+  { href: "/keiko", label: "¿Le toca a Keiko?" },
 ]
 
 export default function Header() {
@@ -19,9 +19,19 @@ export default function Header() {
     <header className="border-b border-zinc-800 bg-zinc-950 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <span className="text-lg font-bold tracking-tight text-white">
-            Electoral<span className="text-blue-400">Lens</span>
-            <span className="text-zinc-500 font-normal text-sm ml-1">AI</span>
+          <span className="flex items-baseline gap-0.5">
+            <span
+              className="text-white leading-none"
+              style={{ fontFamily: "var(--font-dm-serif)", fontSize: "1.25rem", letterSpacing: "-0.01em" }}
+            >
+              Electoral
+            </span>
+            <span className="text-blue-400 font-bold text-lg tracking-tight leading-none">
+              Lens
+            </span>
+            <span className="text-zinc-500 font-normal text-xs ml-0.5 tracking-widest uppercase leading-none">
+              AI
+            </span>
           </span>
         </Link>
         <nav className="flex items-center gap-1">

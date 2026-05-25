@@ -15,8 +15,25 @@ interface Props {
   selectedUbigeo?: string
 }
 
+// ONPE API: "PATERNAL MATERNAL GIVEN_NAMES" (all-caps) → "Given Paternal"
+// Static data: "Given Paternal Maternal" (title-case) → "Given Paternal"
+function displayLabel(fullName: string): string {
+  const parts = fullName.trim().split(/\s+/)
+  if (parts.length === 0) return fullName
+  const isOnpeFormat = parts[0] === parts[0].toUpperCase() && parts[0].length > 1
+  if (isOnpeFormat && parts.length >= 3) {
+    const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()
+    return `${cap(parts[2])} ${cap(parts[0])}`
+  }
+  return parts.slice(0, 2).join(" ")
+}
+
 export default function ResultsTable({ items, onSelect, selectedUbigeo }: Props) {
   const [sort, setSort] = useState<{ key: SortKey; asc: boolean }>({ key: "winning_margin_pct", asc: false })
+
+  const first = items[0]?.candidates ?? []
+  const f1Label = displayLabel(first.find((c) => c.candidate_code === "F1")?.full_name ?? "F1")
+  const f2Label = displayLabel(first.find((c) => c.candidate_code === "F2")?.full_name ?? "F2")
 
   const sorted = [...items].sort((a, b) => {
     const va = a[sort.key] ?? ""
@@ -51,8 +68,8 @@ export default function ResultsTable({ items, onSelect, selectedUbigeo }: Props)
             >
               <span className="flex items-center justify-end gap-1">Participación <SortIcon k="turnout_pct" /></span>
             </th>
-            <th className="text-right px-4 py-3 text-slate-500 font-medium text-xs uppercase tracking-wide">Castillo</th>
-            <th className="text-right px-4 py-3 text-slate-500 font-medium text-xs uppercase tracking-wide">Fujimori</th>
+            <th className="text-right px-4 py-3 text-slate-500 font-medium text-xs uppercase tracking-wide">{f1Label}</th>
+            <th className="text-right px-4 py-3 text-slate-500 font-medium text-xs uppercase tracking-wide">{f2Label}</th>
             <th
               className="text-right px-4 py-3 text-slate-500 font-medium text-xs uppercase tracking-wide cursor-pointer hover:text-slate-800"
               onClick={() => toggle("winning_margin_pct")}
@@ -96,7 +113,7 @@ export default function ResultsTable({ items, onSelect, selectedUbigeo }: Props)
                       color: CANDIDATE_COLORS[r.leading_candidate_code ?? "F1"],
                     }}
                   >
-                    {r.leading_candidate_code === "F1" ? "Castillo" : "Fujimori"}
+                    {r.leading_candidate_code === "F1" ? f1Label : f2Label}
                   </Badge>
                 </td>
               </tr>

@@ -230,12 +230,12 @@ export default function ElectionCyclePage({ cycle }: { cycle: ElectionCycle }) {
               <div className="flex items-center gap-2 mb-1">
                 <h2 className="text-sm font-semibold text-slate-900">Flujo de votos P1 → P2</h2>
                 <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700">
-                  Regresión ecológica · ONPE
+                  Estimación estadística · ONPE
                 </span>
               </div>
               <p className="text-xs text-slate-400 mb-4">
-                Goodman OLS sobre resultados oficiales ONPE (mesa → 1 800+ distritos) ·
-                El voto es secreto; β_ij = fracción estimada de votantes de cada candidato que apoyó a cada finalista
+                ¿Adónde fueron los votos de cada candidato eliminado en la segunda vuelta?
+                Estimación basada en resultados oficiales ONPE por distrito. El voto es secreto; estos valores son aproximaciones estadísticas.
               </p>
               <VoteFlowSankeyClient flow={flow} height={height} />
               <p className="text-xs text-slate-400 mt-3">{flow.note}</p>

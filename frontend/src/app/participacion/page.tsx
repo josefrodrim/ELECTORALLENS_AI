@@ -4,11 +4,18 @@ import StatCard from "@/components/StatCard"
 import { Separator } from "@/components/ui/separator"
 import { TurnoutRankingClient } from "@/components/charts/ChartsSection"
 import ResultsTable from "@/components/ResultsTable"
+import { getStaticDeptResults } from "@/lib/static-election-results"
 
 export const revalidate = 60
 
-export default async function ParticipacionPage() {
-  const deptResults = await api.results("department", "GP2021-P2")
+export default async function ParticipacionPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ election?: string }>
+}) {
+  const { election = "GP2021-P2" } = await searchParams
+  const staticData = getStaticDeptResults(election)
+  const deptResults = staticData ?? await api.results("department", election)
   const items = deptResults.items
 
   const totalRegistered = items.reduce((s, r) => s + (r.registered_voters ?? 0), 0)
@@ -31,7 +38,7 @@ export default async function ParticipacionPage() {
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Análisis de Participación</h1>
         <p className="text-slate-500 text-sm mt-1">
-          Distribución de la participación electoral por departamento · GP2021 Segunda Vuelta
+          Distribución de la participación electoral por departamento · {deptResults.election_name}
         </p>
       </div>
 

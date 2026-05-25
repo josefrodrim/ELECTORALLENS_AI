@@ -125,51 +125,20 @@ export default function HomePage() {
 
       <Separator className="border-slate-200" />
 
-      {/* ── Analysis features ─────────────────────────────────────────────── */}
-      <div>
-        <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">
-          Análisis
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-
-          <Link href="/keiko" className="group rounded-xl border border-slate-200 bg-white shadow-sm p-5 hover:border-orange-200 hover:shadow-md transition-all space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="text-orange-600 font-bold text-sm">Patrón Keiko</span>
-              <Badge variant="outline" className="text-xs border-slate-300 text-slate-400">4 elecciones</Badge>
-            </div>
-            <p className="text-slate-500 text-xs leading-relaxed">
-              Comparativo del desempeño de Fujimori en P1 y P2 de 2011 a 2026. Análisis del
-              "techo electoral" y proyecciones de transferencia para la segunda vuelta 2026.
-            </p>
-            <p className="text-orange-600 text-xs group-hover:text-orange-700">Ver análisis →</p>
-          </Link>
-
-          <Link href="/resultados" className="group rounded-xl border border-slate-200 bg-white shadow-sm p-5 hover:border-slate-300 hover:shadow-md transition-all space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="text-slate-800 font-bold text-sm">Resultados por Territorio</span>
-              <Badge variant="outline" className="text-xs border-slate-300 text-slate-400">API</Badge>
-            </div>
-            <p className="text-slate-500 text-xs leading-relaxed">
-              Drill-down por departamento y provincia. Resultados EG 2021 P2 desde la API
-              FastAPI con datos ONPE procesados.
-            </p>
-            <p className="text-slate-500 text-xs group-hover:text-slate-700">Ver resultados →</p>
-          </Link>
-
-          <Link href="/participacion" className="group rounded-xl border border-slate-200 bg-white shadow-sm p-5 hover:border-slate-300 hover:shadow-md transition-all space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="text-slate-800 font-bold text-sm">Participación Electoral</span>
-              <Badge variant="outline" className="text-xs border-slate-300 text-slate-400">API</Badge>
-            </div>
-            <p className="text-slate-500 text-xs leading-relaxed">
-              Ranking de participación y votos nulos/blancos por departamento. Identifica
-              outliers estadísticos en el comportamiento del electorado.
-            </p>
-            <p className="text-slate-500 text-xs group-hover:text-slate-700">Ver participación →</p>
-          </Link>
-
+      {/* ── Patrón Keiko ──────────────────────────────────────────────────── */}
+      <Link href="/keiko" className="group flex items-center justify-between gap-6 rounded-xl border border-slate-200 bg-white shadow-sm px-6 py-5 hover:border-orange-200 hover:shadow-md transition-all">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="text-orange-600 font-bold text-sm">¿Le toca a Keiko?</span>
+            <Badge variant="outline" className="text-xs border-slate-300 text-slate-400">4 elecciones</Badge>
+          </div>
+          <p className="text-slate-500 text-xs leading-relaxed max-w-xl">
+            Comparativo del desempeño de Fujimori en P1 y P2 de 2011 a 2026. Análisis del
+            "techo electoral" y proyecciones de transferencia para la segunda vuelta 2026.
+          </p>
         </div>
-      </div>
+        <span className="text-orange-500 text-sm shrink-0 group-hover:text-orange-700 transition-colors">Ver análisis →</span>
+      </Link>
 
       <Separator className="border-slate-200" />
 

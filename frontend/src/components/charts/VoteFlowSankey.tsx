@@ -169,7 +169,7 @@ export default function VoteFlowSankey({ flow, height = 460 }: Props) {
                 <span style={{ color: "#94a3b8", margin: "0 6px" }}>→</span>
                 <span style={{ color: tgtColor, fontWeight: 600 }}>{tgtLabel}</span>
               </p>
-              <p style={{ color: "#64748b" }}>{fmtM(link.value)} votos · Goodman OLS</p>
+              <p style={{ color: "#64748b" }}>{fmtM(link.value)} votos estimados</p>
             </div>
           )
         }}

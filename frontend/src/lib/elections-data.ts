@@ -583,16 +583,15 @@ export const CYCLES_WITH_P2 = ELECTION_CYCLES.filter(
 )
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 2026 P2 vote-transfer scenarios (second round is pending — June 2026)
-// Each tuple: [% to Fujimori, % to Sánchez, % null/blank/abstain]
+// 2026 P2 vote-transfer scenarios (second round pending — June 2026)
+// Each tuple: [% → Fujimori, % → Sánchez, % → null/blank/abstain]
 //
-// METHODOLOGY NOTE — these are editorial estimates, NOT Goodman regression output.
-// No district-level P2 data exists yet (P2 has not occurred).
-// Rates are calibrated against:
-//   1. Historical Goodman β from 2011/2016/2021 (see vote-flows.ts / vote_transfers_goodman.json)
-//   2. Declared ideology of each party/candidate
-//   3. Known coalition dynamics (López Aliaga right-wing alignment, Olivera left-wing)
-// Once P2 results are published, run compute_vote_transfers.py for 2026 to replace these.
+// Calibrated against historical EI transfer patterns (EG 2011, 2016, 2021).
+// No district-level P2 data exists yet — these are editorial projections, not EI output.
+// Key reference: López Aliaga EI 2021 = 69.7% → Fujimori (he ran that year).
+// Sánchez (center-left) is more moderate than Castillo (2021 far-left), so center/
+// center-right voters are expected to split more evenly than in 2021.
+// Replace with actual EI once P2 district results are published.
 // ─────────────────────────────────────────────────────────────────────────────
 export interface TransferScenario {
   label: string
@@ -603,57 +602,58 @@ export interface TransferScenario {
 export const TRANSFER_SCENARIOS: TransferScenario[] = [
   {
     label: "Consolidación derechista",
-    description: "Los votos de López Aliaga van masivamente a Fujimori; los de centro se dividen",
+    description: "La derecha y centro-derecha se articulan detrás de Fujimori. López Aliaga convoca su base; el centro se inclina a favor de Fujimori. Rango optimista.",
     transfers: {
       // [% → Fujimori, % → Sánchez, % → abstención/nulo]
-      "López Aliaga": [72, 18, 10],  // derecha, base histórica fujimorista
-      "Nieto":        [45, 45, 10],  // centro, equiprobable
-      "Belmont":      [55, 35, 10],  // centro-derecha
-      "Álvarez":      [25, 65, 10],  // centro-izquierda
-      "López Chau":   [20, 70, 10],  // centro-izquierda
-      "Pérez Tello":  [60, 30, 10],  // centro-derecha, ex PPK
-      "Espa":         [50, 40, 10],  // centro
-      "Olivera":      [10, 80, 10],  // izquierda, fuerte anti-fujimorismo
-      "Luna":         [55, 35, 10],  // centro-derecha populista
-      "Lescano":      [30, 60, 10],  // centro-izquierda, patrón 2016
-      "Acuña":        [55, 35, 10],  // centro-derecha populista
-      "Otros":        [35, 45, 20],  // heterogéneo (<1% c/u)
+      // Ref: López Aliaga EI 2021 = 69.7% → Fujimori
+      "López Aliaga": [72, 18, 10],
+      "Nieto":        [52, 38, 10],
+      "Belmont":      [55, 35, 10],
+      "Álvarez":      [28, 62, 10],
+      "López Chau":   [22, 68, 10],
+      "Pérez Tello":  [58, 32, 10],
+      "Espa":         [48, 42, 10],
+      "Olivera":      [10, 80, 10],
+      "Luna":         [55, 35, 10],
+      "Lescano":      [30, 60, 10],
+      "Acuña":        [55, 35, 10],
+      "Otros":        [38, 42, 20],
+    },
+  },
+  {
+    label: "Voto dividido",
+    description: "El centro se fragmenta sin un bloque claro. Candidatos de derecha van a Fujimori; los de izquierda a Sánchez; el centro se parte. Escenario más competido.",
+    transfers: {
+      "López Aliaga": [65, 22, 13],
+      "Nieto":        [42, 42, 16],
+      "Belmont":      [45, 38, 17],
+      "Álvarez":      [22, 58, 20],
+      "López Chau":   [18, 62, 20],
+      "Pérez Tello":  [48, 35, 17],
+      "Espa":         [40, 42, 18],
+      "Olivera":      [ 8, 72, 20],
+      "Luna":         [45, 38, 17],
+      "Lescano":      [25, 55, 20],
+      "Acuña":        [45, 38, 17],
+      "Otros":        [32, 42, 26],
     },
   },
   {
     label: "Coalición anti-Fujimori",
-    description: "Patrón histórico: el electorado se moviliza para bloquear el retorno del fujimorismo",
+    description: "Patrón histórico 2011/2016: el electorado se moviliza para bloquear el retorno del fujimorismo. El centro y la izquierda confluyen hacia Sánchez. Rango adverso.",
     transfers: {
-      "López Aliaga": [60, 28, 12],
-      "Nieto":        [38, 52, 10],
-      "Belmont":      [45, 44, 11],
-      "Álvarez":      [18, 72, 10],
-      "López Chau":   [15, 75, 10],
-      "Pérez Tello":  [45, 45, 10],
-      "Espa":         [38, 52, 10],
-      "Olivera":      [5,  85, 10],
-      "Luna":         [42, 48, 10],
-      "Lescano":      [20, 70, 10],
-      "Acuña":        [40, 50, 10],
-      "Otros":        [28, 52, 20],
-    },
-  },
-  {
-    label: "Fragmentación máxima",
-    description: "Alta abstención de votantes de candidatos eliminados; elección muy cerrada",
-    transfers: {
-      "López Aliaga": [55, 20, 25],
-      "Nieto":        [30, 40, 30],
-      "Belmont":      [38, 32, 30],
-      "Álvarez":      [12, 58, 30],
-      "López Chau":   [10, 60, 30],
-      "Pérez Tello":  [40, 28, 32],
-      "Espa":         [32, 38, 30],
-      "Olivera":      [5,  65, 30],
-      "Luna":         [38, 32, 30],
-      "Lescano":      [18, 52, 30],
-      "Acuña":        [38, 32, 30],
-      "Otros":        [20, 35, 45],
+      "López Aliaga": [58, 28, 14],
+      "Nieto":        [32, 52, 16],
+      "Belmont":      [38, 46, 16],
+      "Álvarez":      [15, 72, 13],
+      "López Chau":   [12, 75, 13],
+      "Pérez Tello":  [38, 48, 14],
+      "Espa":         [30, 55, 15],
+      "Olivera":      [ 5, 82, 13],
+      "Luna":         [38, 48, 14],
+      "Lescano":      [20, 67, 13],
+      "Acuña":        [35, 52, 13],
+      "Otros":        [26, 52, 22],
     },
   },
 ]
