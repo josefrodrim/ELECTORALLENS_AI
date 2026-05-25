@@ -24,9 +24,7 @@ const firaCode = Fira_Code({
   display: "swap",
 })
 
-const BASE_URL = process.env.NEXT_PUBLIC_VERCEL_URL
-  ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-  : "https://electoral-lens-ai.vercel.app"
+const BASE_URL = "https://electoral-lens-ai.vercel.app"
 
 export const metadata: Metadata = {
   title: "ElectoralLens AI — Inteligencia Electoral Perú 2011–2026",
